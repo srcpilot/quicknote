@@ -1,41 +1,27 @@
-'use client';
+import { getNotes, deleteNote, togglePin } from "@/app/actions";
+import { NoteCard } from "@/components/note-card";
+import { SearchBar } from "@/components/search-bar";
+import { Empty } from "@/components/ui/empty";
 
-import { getNotes } from '@/app/actions';
-import { NoteDialog } from '@/components/note-dialog';
-import { Button } from '@/components/ui/button';
-import { Plus } from 'lucide-react';
-import { useState, useEffect } from 'react';
-
-export default function Page() {
-  const [notes, setNotes] = useState<any[]>([]);
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-
-  useEffect(() => {
-    getNotes().then(setNotes);
-  }, []);
+export default async function Page() {
+  const notes = await getNotes();
 
   return (
-    <main className="p-8">
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold">My Notes</h1>
-        <Button onClick={() => setIsDialogOpen(true)}>
-          <Plus className="mr-2 h-4 w-4" /> Add Note
-        </Button>
+    <main className="container mx-auto py-8 px-4 space-y-8">
+      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        <h1 className="text-3xl font-bold tracking-tight">My Notes</h1>
+        <SearchBar />
       </div>
 
-      <div className="grid gap-4">
-        {notes.map((note) => (
-          <div key={note.id} className="p-4 border rounded-lg">
-            <h2 className="font-semibold">{note.title}</h2>
-            <p className="text-muted-foreground">{note.content}</p>
-          </div>
-        ))}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {notes.length === 0 ? (
+          <Empty className="col-span-full py-20" />
+        ) : (
+          notes.map((note) => (
+            <NoteCard key={note.id} note={note} />
+          ))
+        )}
       </div>
-
-      <NoteDialog 
-        open={isDialogOpen} 
-        onOpenChange={setIsDialogOpen} 
-      />
     </main>
   );
 }
